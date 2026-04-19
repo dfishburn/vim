@@ -10,7 +10,7 @@
 " Version:       26.00
 " Maintainer:    David Fishburn <dfishburn dot vim at gmail dot com>
 " Authors:       David Fishburn <dfishburn dot vim at gmail dot com>
-" Last Modified: 2016 Sep 04
+" Last Modified: 2026 Apr 18
 " Created:       2007-05-24
 " Homepage:      http://vim.sourceforge.net/script.php?script_id=356
 "
@@ -855,13 +855,13 @@ sub db_check_error
 
         # db_echo("db_check_error: initial values:$level:$err:$state:$msg");
         if( $driver eq "ODBC" ) {
-            if ( $err eq "" && ! $msg eq "" ) {
+            if ( $err eq "" && (!$msg) eq "" ) {
                 # Informational message
                 $level = "I";
-            } elsif ( $err eq "0" && ! $msg eq "" ) {
+            } elsif ( $err eq "0" && (!$msg) eq "" ) {
                 # Warning message
                 $level = "W";
-            } elsif ( $err eq "1" && ! $msg eq "" ) {
+            } elsif ( $err eq "1" && (!$msg) eq "" ) {
                 # Error message
                 $level = "E";
             }
@@ -869,13 +869,13 @@ sub db_check_error
                 $err = $native_err;
             }
         } else {
-            if ( ($err eq "" || $err eq "0") && ! $msg eq "" ) {
+            if ( ($err eq "" || $err eq "0") && (!$msg) eq "" ) {
                 # Informational message
                 $level = "I";
-            } elsif ( $err gt "0" && ! $msg eq "" ) {
+            } elsif ( $err gt "0" && (!$msg) eq "" ) {
                 # Warning message
                 $level = "W";
-            } elsif ( $err lt "0" && ! $msg eq "" ) {
+            } elsif ( $err lt "0" && (!$msg) eq "" ) {
                 # Error message
                 $level = "E";
             }
@@ -970,7 +970,7 @@ sub db_connect
         return -1;
     }
     my( $level, $err, $msg, $state ) = db_check_error($driver);
-    if ( ! $msg eq "" ) {
+    if ( (!$msg) eq "" ) {
         $msg = "$level. DBC:".(($level ne "I")?"SQLCode:$err:":"").$msg.(($state ne "")?":$state":"").":\nConnection details:$DATA_SOURCE";
         db_set_vim_var('g:dbext_dbi_msg', $msg);
         if ( $level eq "E" ) {
@@ -1001,7 +1001,7 @@ sub db_connect
     # }
 
     my $trace_level = db_vim_eval("g:dbext_dbi_trace_level");
-    if ( ! $trace_level eq "0" ) {
+    if ( (!$trace_level) eq "0" ) {
         my $vim_dir = db_vim_eval("expand('".'$VIM'."')");
         $conn_local->trace($trace_level, $vim_dir.'\dbi_trace.txt');
     }
@@ -1151,7 +1151,7 @@ sub db_set_connection_option
             db_debug("db_set_connection_option ConnLocal->Opt[$option] Val:[".$conn_local->{$option}."]");
 
             my( $level, $err, $msg, $state ) = db_check_error($driver);
-            if ( ! $msg eq "" ) {
+            if ( (!$msg) eq "" ) {
                 $msg = "$level. DBSO:".(($level ne "I")?"SQLCode:$err:":"").$msg.(($state ne "")?":$state":"");
                 db_set_vim_var('g:dbext_dbi_msg', $msg);
                 if ( $level eq "E" ) {
@@ -1226,7 +1226,7 @@ sub db_query
     # }
 
     my( $level, $err, $msg, $state ) = db_check_error($driver);
-    if ( ! $msg eq "" ) {
+    if ( (!$msg) eq "" ) {
         $msg = "$level. DBQp:".(($level ne "I")?"SQLCode:$err:":"").$msg.(($state ne "")?":$state":"");
         db_set_vim_var('g:dbext_dbi_msg', $msg);
         if ( $level eq "E" || ! defined($sth) ) {
@@ -1247,7 +1247,7 @@ sub db_query
     }
     db_set_vim_var('g:dbext_rows_affected', $row_count);
     ( $level, $err, $msg, $state ) = db_check_error($driver);
-    if ( ! $msg eq "" ) {
+    if ( (!$msg) eq "" ) {
         $msg = "$level. DBQe:".(($level ne "I")?"SQLCode:$err:":"").$msg.(($state ne "")?":$state":"");
         db_set_vim_var('g:dbext_dbi_msg', $msg);
         if ( $level eq "E" ) {
@@ -1340,7 +1340,7 @@ sub db_format_results
             }
         }
         my( $level, $err, $msg, $state ) = db_check_error($driver);
-        if ( ! $msg eq "" ) {
+        if ( (!$msg) eq "" ) {
             $msg = "$level. DBfr:".(($level ne "I")?"SQLCode:$err:":"").$msg.(($state ne "")?":$state":"");
             db_set_vim_var('g:dbext_dbi_msg', $msg);
             if ( $level eq "E" ) {
@@ -1470,7 +1470,7 @@ sub db_print_results
     db_debug("db_print_results: $format");
 
     my $msg = db_vim_eval('g:dbext_dbi_msg');
-    if ( ! $msg eq "" ) {
+    if ( (!$msg) eq "" ) {
         db_debug("db_print_results: Adding msg to output: $msg");
         db_vim_print($last_line, $msg);
         $msg    = "";
@@ -1585,7 +1585,7 @@ sub db_results_variable
     # db_echo("db_print_results: $format");
 
     my $msg = db_vim_eval('g:dbext_dbi_msg');
-    if ( ! $msg eq "" ) {
+    if ( (!$msg) eq "" ) {
         $result .= db_escape($msg)."\n";
     }
     db_set_vim_var('g:dbext_dbi_msg', '');
@@ -1837,7 +1837,7 @@ sub db_catalogue
         db_debug("db_catalogue statement is defined");
         $sth->execute;
         ( $level, $err, $msg, $state ) = db_check_error($driver);
-        if ( ! $msg eq "" ) {
+        if ( (!$msg) eq "" ) {
             $msg = "$level. DBcate:".(($level ne "I")?"SQLCode:$err:":"").$msg.(($state ne "")?":$state":"");
             db_set_vim_var('g:dbext_dbi_msg', $msg);
             if ( $level eq "E" ) {
@@ -1850,7 +1850,7 @@ sub db_catalogue
     } else {
         db_set_vim_var('g:dbext_dbi_result', -1);
         ( $level, $err, $msg, $state ) = db_check_error($driver);
-        if ( ! $msg eq "" ) {
+        if ( (!$msg) eq "" ) {
             $msg = "$level. DBcats:".(($level ne "I")?"SQLCode:$err:":"").$msg.(($state ne "")?":$state":"");
             db_set_vim_var('g:dbext_dbi_msg', $msg);
             if ( $level eq "E" ) {
@@ -1952,7 +1952,7 @@ sub db_odbc_catalogue
     } else {
         db_set_vim_var('g:dbext_dbi_result', -1);
         my ( $level, $err, $msg, $state ) = db_check_error($driver);
-        if ( ! $msg eq "" ) {
+        if ( (!$msg) eq "" ) {
             $msg = "$level. DBOcat:".(($level ne "I")?"SQLCode:$err:":"").$msg.(($state ne "")?":$state":"");
             db_set_vim_var('g:dbext_dbi_msg', $msg);
             if ( $level eq "E" ) {
